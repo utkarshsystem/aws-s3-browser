@@ -16,6 +16,8 @@ export default defineConfig({
         'react',
         'react-dom',
         'aws-amplify',
+        'aws-amplify/auth',
+        'aws-amplify/utils',
         '@aws-amplify/ui-react',
         '@aws-amplify/ui-react-storage',
         '@aws-amplify/ui-react-storage/browser',

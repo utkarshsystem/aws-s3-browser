@@ -21,7 +21,12 @@
     "noUnusedLocals": true,
     "noUnusedParameters": true,
     "noFallthroughCasesInSwitch": true,
-    "noUncheckedSideEffectImports": true
+    "noUncheckedSideEffectImports": true,
+
+    /* Workspace alias */
+    "paths": {
+      "vcp-s3-browser-ui": ["../s3-browser-plugin/index.ts"]
+    }
   },
-  "include": ["src", "amplify_outputs.json"]
+  "include": ["src", "amplify_outputs.json", "../s3-browser-plugin/index.ts", "../s3-browser-plugin/src"]
 }

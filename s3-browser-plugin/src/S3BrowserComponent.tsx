@@ -4,6 +4,7 @@ import {
 } from '@aws-amplify/ui-react-storage/browser';
 import '@aws-amplify/ui-react-storage/styles.css';
 import { fetchAuthSession } from 'aws-amplify/auth';
+import { Hub } from 'aws-amplify/utils';
 import { useMemo } from 'react';
 import './S3BrowserComponent.css';
 
@@ -23,18 +24,37 @@ export function S3BrowserComponent({ region, accountId }: S3BrowserComponentProp
       createStorageBrowser({
         config: createManagedAuthAdapter({
           credentialsProvider: async () => {
-            const { credentials } = await fetchAuthSession();
-            return { credentials: credentials! };
+            const { credentials } = await fetchAuthSession({ forceRefresh: true });
+            if (
+              !credentials?.accessKeyId ||
+              !credentials?.secretAccessKey ||
+              !credentials?.sessionToken ||
+              !credentials?.expiration
+            ) {
+              throw new Error('Unable to retrieve valid AWS credentials from session.');
+            }
+            return {
+              credentials: {
+                accessKeyId: credentials.accessKeyId,
+                secretAccessKey: credentials.secretAccessKey,
+                sessionToken: credentials.sessionToken,
+                expiration: credentials.expiration,
+              },
+            };
           },
           region,
           accountId,
+          registerAuthListener: (onStateChange) => {
+            const unsubscribe = Hub.listen('auth', onStateChange);
+            return unsubscribe;
+          },
         }),
       }),
     [region, accountId]
   );
 
   return (
-    <div className="s3-browser-header">
+    <div className="s3-browser-container">
       <StorageBrowser />
     </div>
   );
