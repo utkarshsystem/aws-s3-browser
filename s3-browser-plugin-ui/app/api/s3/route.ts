@@ -1,4 +1,5 @@
 import {
+  CopyObjectCommand,
   DeleteObjectCommand,
   GetObjectCommand,
   ListBucketsCommand,
@@ -22,7 +23,7 @@ function getClient(region: string) {
 export async function POST(req: NextRequest) {
   try {
     const json = await req.json();
-    const { action, region = 'us-east-1', bucket, prefix, key, contentType, body } = json;
+    const { action, region = 'us-east-1', bucket, prefix, key, newKey, contentType, body } = json;
     const client = getClient(region);
 
     switch (action) {
@@ -94,6 +95,18 @@ export async function POST(req: NextRequest) {
         await client.send(
           new PutObjectCommand({ Bucket: bucket, Key: key, Body: '', ContentType: 'application/x-directory' })
         );
+        return NextResponse.json({ ok: true });
+      }
+
+      case 'renameObject': {
+        await client.send(
+          new CopyObjectCommand({
+            Bucket: bucket,
+            CopySource: `${bucket}/${key}`,
+            Key: newKey,
+          })
+        );
+        await client.send(new DeleteObjectCommand({ Bucket: bucket, Key: key }));
         return NextResponse.json({ ok: true });
       }
 

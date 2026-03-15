@@ -15,6 +15,7 @@ export interface S3Operations {
   uploadFile(bucket: string, key: string, file: File): Promise<void>;
   deleteObject(bucket: string, key: string): Promise<void>;
   createFolder(bucket: string, key: string): Promise<void>;
+  renameObject(bucket: string, oldKey: string, newKey: string): Promise<void>;
 }
 
 export interface S3BrowserComponentProps {
@@ -36,6 +37,8 @@ export function S3BrowserComponent({ s3, region = 'us-east-1', onOpenInEditor }:
   const [bucketSearch, setBucketSearch] = useState('');
   const [showNewFolder, setShowNewFolder] = useState(false);
   const [newFolderName, setNewFolderName] = useState('');
+  const [renamingKey, setRenamingKey] = useState<string | null>(null);
+  const [renameValue, setRenameValue] = useState('');
   const fileInputRef = useRef<HTMLInputElement>(null);
 
   const filteredBuckets = buckets.filter((b) =>
@@ -118,6 +121,29 @@ export function S3BrowserComponent({ s3, region = 'us-east-1', onOpenInEditor }:
     },
     [currentBucket, currentPrefix, s3, openBucket]
   );
+
+  const handleRename = useCallback(
+    async (oldKey: string) => {
+      if (!currentBucket || !renameValue.trim()) return;
+      const newKey = currentPrefix + renameValue.trim();
+      if (newKey === oldKey) { setRenamingKey(null); return; }
+      try {
+        await s3.renameObject(currentBucket, oldKey, newKey);
+        setRenamingKey(null);
+        setRenameValue('');
+        await openBucket(currentBucket, currentPrefix);
+      } catch (err: any) {
+        setError(err.message);
+      }
+    },
+    [currentBucket, currentPrefix, renameValue, s3, openBucket]
+  );
+
+  const startRename = (item: S3Item) => {
+    const name = item.key.slice(currentPrefix.length);
+    setRenamingKey(item.key);
+    setRenameValue(name);
+  };
 
   const handleCreateFolder = useCallback(async () => {
     if (!currentBucket || !newFolderName.trim()) return;
@@ -293,7 +319,27 @@ export function S3BrowserComponent({ s3, region = 'us-east-1', onOpenInEditor }:
                   >
                     <td>
                       {item.isFolder ? '📁 ' : '📄 '}
-                      {item.key.slice(currentPrefix.length)}
+                      {renamingKey === item.key ? (
+                        <span className="d-inline-flex align-items-center gap-1">
+                          <input
+                            type="text"
+                            className="form-control form-control-sm d-inline-block"
+                            style={{ width: 250 }}
+                            value={renameValue}
+                            onChange={(e) => setRenameValue(e.target.value)}
+                            onKeyDown={(e) => {
+                              if (e.key === 'Enter') handleRename(item.key);
+                              if (e.key === 'Escape') { setRenamingKey(null); setRenameValue(''); }
+                            }}
+                            onClick={(e) => e.stopPropagation()}
+                            autoFocus
+                          />
+                          <button className="btn btn-primary btn-sm" onClick={(e) => { e.stopPropagation(); handleRename(item.key); }}>Save</button>
+                          <button className="btn btn-outline-secondary btn-sm" onClick={(e) => { e.stopPropagation(); setRenamingKey(null); setRenameValue(''); }}>Cancel</button>
+                        </span>
+                      ) : (
+                        item.key.slice(currentPrefix.length)
+                      )}
                     </td>
                     <td className="text-muted small">{item.isFolder ? '' : formatBytes(item.size)}</td>
                     <td className="text-muted small">{item.isFolder ? '' : item.lastModified?.toLocaleString()}</td>
@@ -314,6 +360,12 @@ export function S3BrowserComponent({ s3, region = 'us-east-1', onOpenInEditor }:
                               Open
                             </button>
                           )}
+                          <button
+                            className="btn btn-outline-warning"
+                            onClick={(e) => { e.stopPropagation(); startRename(item); }}
+                          >
+                            Rename
+                          </button>
                           <button
                             className="btn btn-outline-danger"
                             onClick={(e) => { e.stopPropagation(); handleDelete(item.key); }}

@@ -51,6 +51,9 @@ function createS3Operations(): S3Operations {
     async createFolder(bucket: string, key: string) {
       await s3Post('createFolder', { bucket, key });
     },
+    async renameObject(bucket: string, oldKey: string, newKey: string) {
+      await s3Post('renameObject', { bucket, key: oldKey, newKey });
+    },
   };
 }
 
