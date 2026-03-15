@@ -19,9 +19,13 @@
     "publish:ui:major": "cd s3-browser-plugin && pnpm version major --no-git-tag-version && pnpm publish --no-git-checks --registry https://virtusasystems-787952688011.d.codeartifact.us-east-1.amazonaws.com/npm/vcp-react-components/",
     "publish:ts:patch": "cd typescript && pnpm version patch --no-git-tag-version && pnpm publish --no-git-checks --registry https://virtusasystems-787952688011.d.codeartifact.us-east-1.amazonaws.com/npm/vcp-react-components/",
     "publish:ts:minor": "cd typescript && pnpm version minor --no-git-tag-version && pnpm publish --no-git-checks --registry https://virtusasystems-787952688011.d.codeartifact.us-east-1.amazonaws.com/npm/vcp-react-components/",
-    "setup": "pnpm run build:ts && pnpm run ca:login && pnpm run build:ui && pnpm run publish:ui:patch && pnpm run install:app",
+    "publish:ts:major": "cd typescript && pnpm version major --no-git-tag-version && pnpm publish --no-git-checks --registry https://virtusasystems-787952688011.d.codeartifact.us-east-1.amazonaws.com/npm/vcp-react-components/",
+    "use:latest": "cd s3-app && pnpm add vcp-s3-browser-ui@latest --registry https://virtusasystems-787952688011.d.codeartifact.us-east-1.amazonaws.com/npm/vcp-react-components/",
+    "release:patch": "pnpm run ca:login && pnpm run build:ts && pnpm run publish:ts:patch && pnpm run build:ui && pnpm run publish:ui:patch && pnpm run use:latest",
+    "release:minor": "pnpm run ca:login && pnpm run build:ts && pnpm run publish:ts:minor && pnpm run build:ui && pnpm run publish:ui:minor && pnpm run use:latest",
+    "release:major": "pnpm run ca:login && pnpm run build:ts && pnpm run publish:ts:major && pnpm run build:ui && pnpm run publish:ui:major && pnpm run use:latest",
     "clean": "rimraf s3-browser-plugin/dist || echo Clean completed",
-    "format": "prettier --write \"{typescript,s3-browser-app,s3-app}/src/**/*.{js,jsx,ts,tsx}\""
+    "format": "prettier --write \"{typescript,s3-browser-plugin,s3-app}/src/**/*.{js,jsx,ts,tsx}\""
   },
   "devDependencies": {
     "@types/node": "^20.0.0",
