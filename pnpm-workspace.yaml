@@ -1,0 +1,4 @@
+packages:
+  - 'typescript'
+  - 's3-browser-app'
+  - 's3-app'

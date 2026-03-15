@@ -1,7 +1,8 @@
 {
   "files": [],
   "references": [
-    { "path": "./tsconfig.app.json" },
-    { "path": "./tsconfig.node.json" }
+    { "path": "./typescript/tsconfig.json" },
+    { "path": "./s3-browser-app/tsconfig.json" },
+    { "path": "./s3-app/tsconfig.json" }
   ]
 }
