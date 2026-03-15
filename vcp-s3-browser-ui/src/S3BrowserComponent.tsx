@@ -27,9 +27,11 @@ export interface S3BrowserComponentProps {
   region?: string;
   /** Called when the user clicks "Open" on a file — navigate to your editor route. */
   onOpenInEditor?: (bucket: string, key: string) => void;
+  /** If provided, skip the bucket list and open this bucket directly. */
+  bucket?: string;
 }
 
-export function S3BrowserComponent({ s3, region = 'us-east-1', onOpenInEditor }: S3BrowserComponentProps) {
+export function S3BrowserComponent({ s3, region = 'us-east-1', onOpenInEditor, bucket: initialBucket }: S3BrowserComponentProps) {
   const [buckets, setBuckets] = useState<string[]>([]);
   const [currentBucket, setCurrentBucket] = useState<string | null>(null);
   const [currentPrefix, setCurrentPrefix] = useState('');
@@ -52,16 +54,6 @@ export function S3BrowserComponent({ s3, region = 'us-east-1', onOpenInEditor }:
     b.toLowerCase().includes(bucketSearch.toLowerCase())
   );
 
-  // List all buckets on mount
-  useEffect(() => {
-    setLoading(true);
-    setError(null);
-    s3.listBuckets()
-      .then((names) => setBuckets(names))
-      .catch((err) => setError(err.message))
-      .finally(() => setLoading(false));
-  }, [s3]);
-
   const openBucket = useCallback(
     async (bucket: string, prefix = '') => {
       setLoading(true);
@@ -79,6 +71,20 @@ export function S3BrowserComponent({ s3, region = 'us-east-1', onOpenInEditor }:
     },
     [s3]
   );
+
+  // On mount: if an initial bucket is provided, open it directly; otherwise list all buckets.
+  useEffect(() => {
+    if (initialBucket) {
+      openBucket(initialBucket, '');
+    } else {
+      setLoading(true);
+      setError(null);
+      s3.listBuckets()
+        .then((names) => setBuckets(names))
+        .catch((err) => setError(err.message))
+        .finally(() => setLoading(false));
+    }
+  }, [s3, initialBucket, openBucket]);
 
   const handleDownload = useCallback(
     async (key: string) => {

@@ -1,4 +1,4 @@
 packages:
   - 'typescript'
-  - 's3-browser-plugin-ui'
+  - 'vcp-s3-browser-ui'
   - 's3-browser-app'

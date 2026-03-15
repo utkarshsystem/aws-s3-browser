@@ -61,7 +61,7 @@ function createS3Operations(): S3Operations {
   };
 }
 
-export default function S3BrowserPage() {
+export default function S3BrowserPage({ bucketName }: { bucketName?: string } = {}) {
   const router = useRouter();
   const s3 = useMemo(() => createS3Operations(), []);
 
@@ -69,6 +69,7 @@ export default function S3BrowserPage() {
     <S3BrowserComponent
       s3={s3}
       region={region}
+      bucket={bucketName}
       onOpenInEditor={(bucket, key) =>
         router.push(`/editor?bucket=${encodeURIComponent(bucket)}&key=${encodeURIComponent(key)}`)
       }
