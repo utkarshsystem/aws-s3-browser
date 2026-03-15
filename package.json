@@ -5,32 +5,20 @@
   "private": true,
   "scripts": {
     "ca:login": "aws codeartifact login --tool npm --repository vcp-react-components --domain virtusasystems --domain-owner 787952688011 --region us-east-1",
-    "install:ts": "cd typescript && pnpm install",
+    "dev:app": "cd s3-browser-app && pnpm dev",
     "build:ts": "cd typescript && pnpm build",
-    "install:ui": "cd s3-browser-plugin && pnpm install",
-    "build:ui": "cd s3-browser-plugin && pnpm build",
-    "dev:ui": "cd s3-browser-plugin && pnpm dev",
-    "install:app": "cd s3-app && pnpm install",
-    "dev:app": "cd s3-app && pnpm dev",
-    "build:app": "cd s3-app && pnpm build",
-    "sandbox": "cd s3-app && cross-env npm_config_user_agent=npm npx ampx sandbox",
-    "publish:ui:patch": "cd s3-browser-plugin && pnpm version patch --no-git-tag-version && pnpm publish --no-git-checks --registry https://virtusasystems-787952688011.d.codeartifact.us-east-1.amazonaws.com/npm/vcp-react-components/",
-    "publish:ui:minor": "cd s3-browser-plugin && pnpm version minor --no-git-tag-version && pnpm publish --no-git-checks --registry https://virtusasystems-787952688011.d.codeartifact.us-east-1.amazonaws.com/npm/vcp-react-components/",
-    "publish:ui:major": "cd s3-browser-plugin && pnpm version major --no-git-tag-version && pnpm publish --no-git-checks --registry https://virtusasystems-787952688011.d.codeartifact.us-east-1.amazonaws.com/npm/vcp-react-components/",
-    "publish:ts:patch": "cd typescript && pnpm version patch --no-git-tag-version && pnpm publish --no-git-checks --registry https://virtusasystems-787952688011.d.codeartifact.us-east-1.amazonaws.com/npm/vcp-react-components/",
-    "publish:ts:minor": "cd typescript && pnpm version minor --no-git-tag-version && pnpm publish --no-git-checks --registry https://virtusasystems-787952688011.d.codeartifact.us-east-1.amazonaws.com/npm/vcp-react-components/",
-    "publish:ts:major": "cd typescript && pnpm version major --no-git-tag-version && pnpm publish --no-git-checks --registry https://virtusasystems-787952688011.d.codeartifact.us-east-1.amazonaws.com/npm/vcp-react-components/",
-    "use:latest": "cd s3-app && pnpm add vcp-s3-browser-ui@latest --registry https://virtusasystems-787952688011.d.codeartifact.us-east-1.amazonaws.com/npm/vcp-react-components/",
-    "release:patch": "pnpm run ca:login && pnpm run build:ts && pnpm run publish:ts:patch && pnpm run install:ui && pnpm run build:ui && pnpm run publish:ui:patch && pnpm run use:latest",
-    "release:minor": "pnpm run ca:login && pnpm run build:ts && pnpm run publish:ts:minor && pnpm run install:ui && pnpm run build:ui && pnpm run publish:ui:minor && pnpm run use:latest",
-    "release:major": "pnpm run ca:login && pnpm run build:ts && pnpm run publish:ts:major && pnpm run install:ui && pnpm run build:ui && pnpm run publish:ui:major && pnpm run use:latest",
-    "clean": "rimraf s3-browser-plugin/dist || echo Clean completed",
-    "format": "prettier --write \"{typescript,s3-browser-plugin,s3-app}/src/**/*.{js,jsx,ts,tsx}\""
+    "build:ui": "cd s3-browser-plugin-ui && pnpm build",
+    "release:patch": "pnpm run ca:login && cd typescript && pnpm version patch --no-git-tag-version && pnpm publish --no-git-checks --registry https://virtusasystems-787952688011.d.codeartifact.us-east-1.amazonaws.com/npm/vcp-react-components/ && cd .. && pnpm run build:ui && cd s3-browser-plugin-ui && pnpm version patch --no-git-tag-version && pnpm publish --no-git-checks --registry https://virtusasystems-787952688011.d.codeartifact.us-east-1.amazonaws.com/npm/vcp-react-components/ && cd .. && node scripts/use-published.mjs",
+    "release:minor": "pnpm run ca:login && cd typescript && pnpm version minor --no-git-tag-version && pnpm publish --no-git-checks --registry https://virtusasystems-787952688011.d.codeartifact.us-east-1.amazonaws.com/npm/vcp-react-components/ && cd .. && pnpm run build:ui && cd s3-browser-plugin-ui && pnpm version minor --no-git-tag-version && pnpm publish --no-git-checks --registry https://virtusasystems-787952688011.d.codeartifact.us-east-1.amazonaws.com/npm/vcp-react-components/ && cd .. && node scripts/use-published.mjs",
+    "release:major": "pnpm run ca:login && cd typescript && pnpm version major --no-git-tag-version && pnpm publish --no-git-checks --registry https://virtusasystems-787952688011.d.codeartifact.us-east-1.amazonaws.com/npm/vcp-react-components/ && cd .. && pnpm run build:ui && cd s3-browser-plugin-ui && pnpm version major --no-git-tag-version && pnpm publish --no-git-checks --registry https://virtusasystems-787952688011.d.codeartifact.us-east-1.amazonaws.com/npm/vcp-react-components/ && cd .. && node scripts/use-published.mjs",
+    "clean": "rimraf s3-browser-plugin-ui/dist"
   },
   "devDependencies": {
     "@types/node": "^20.0.0",
-    "prettier": "^3.2.5",
     "rimraf": "^5.0.0",
     "typescript": "^5.7.3"
+  },
+  "pnpm": {
+    "onlyBuiltDependencies": ["esbuild", "sharp"]
   }
 }

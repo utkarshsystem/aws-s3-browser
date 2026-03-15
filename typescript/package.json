@@ -1,6 +1,6 @@
 {
   "name": "vcp-s3-browser-plugin-ts",
-  "version": "1.0.2",
+  "version": "1.0.5",
   "description": "TypeScript S3 Storage Browser plugin models, abstracts, and service definitions",
   "main": "dist/index.js",
   "types": "dist/index.d.ts",
@@ -10,10 +10,7 @@
     "package.json"
   ],
   "scripts": {
-    "build": "tsc",
-    "ca:login": "aws codeartifact login --tool npm --repository vcp-react-components --domain virtusasystems --domain-owner 787952688011 --region us-east-1",
-    "_publish": "npm publish --registry https://virtusasystems-787952688011.d.codeartifact.us-east-1.amazonaws.com/npm/vcp-react-components/",
-    "test": "echo \"Error: no test specified\" && exit 1"
+    "build": "tsc"
   },
   "author": "Virtusa Systems LLC",
   "license": "ISC",
