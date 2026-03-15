@@ -18,7 +18,7 @@
     "aws-amplify": "^6.13.1",
     "react": "^19.0.0",
     "react-dom": "^19.0.0",
-    "vcp-s3-browser-ui": "workspace:*"
+    "vcp-s3-browser-ui": "^1.0.1"
   },
   "devDependencies": {
     "@aws-amplify/backend": "^1.14.1",
