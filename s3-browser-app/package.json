@@ -11,7 +11,6 @@
     "next": "^16.1.6",
     "react": "^19.0.0",
     "react-dom": "^19.0.0",
-    "vcp-s3-browser-plugin-ts": "workspace:*",
     "vcp-s3-browser-ui": "workspace:*"
   },
   "devDependencies": {
