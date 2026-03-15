@@ -20,6 +20,8 @@ function S3BrowserComponent({ s3, region = 'us-east-1', onOpenInEditor }) {
     const [bucketSearch, setBucketSearch] = (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f2e$pnpm$2f$next$40$15$2e$4$2e$5_react$2d$dom$40$19$2e$2$2e$3_react$40$19$2e$2$2e$3_$5f$react$40$19$2e$2$2e$3$2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["useState"])('');
     const [showNewFolder, setShowNewFolder] = (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f2e$pnpm$2f$next$40$15$2e$4$2e$5_react$2d$dom$40$19$2e$2$2e$3_react$40$19$2e$2$2e$3_$5f$react$40$19$2e$2$2e$3$2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["useState"])(false);
     const [newFolderName, setNewFolderName] = (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f2e$pnpm$2f$next$40$15$2e$4$2e$5_react$2d$dom$40$19$2e$2$2e$3_react$40$19$2e$2$2e$3_$5f$react$40$19$2e$2$2e$3$2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["useState"])('');
+    const [renamingKey, setRenamingKey] = (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f2e$pnpm$2f$next$40$15$2e$4$2e$5_react$2d$dom$40$19$2e$2$2e$3_react$40$19$2e$2$2e$3_$5f$react$40$19$2e$2$2e$3$2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["useState"])(null);
+    const [renameValue, setRenameValue] = (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f2e$pnpm$2f$next$40$15$2e$4$2e$5_react$2d$dom$40$19$2e$2$2e$3_react$40$19$2e$2$2e$3_$5f$react$40$19$2e$2$2e$3$2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["useState"])('');
     const fileInputRef = (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f2e$pnpm$2f$next$40$15$2e$4$2e$5_react$2d$dom$40$19$2e$2$2e$3_react$40$19$2e$2$2e$3_$5f$react$40$19$2e$2$2e$3$2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["useRef"])(null);
     const filteredBuckets = buckets.filter((b)=>b.toLowerCase().includes(bucketSearch.toLowerCase()));
     // List all buckets on mount
@@ -96,6 +98,33 @@ function S3BrowserComponent({ s3, region = 'us-east-1', onOpenInEditor }) {
         s3,
         openBucket
     ]);
+    const handleRename = (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f2e$pnpm$2f$next$40$15$2e$4$2e$5_react$2d$dom$40$19$2e$2$2e$3_react$40$19$2e$2$2e$3_$5f$react$40$19$2e$2$2e$3$2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["useCallback"])(async (oldKey)=>{
+        if (!currentBucket || !renameValue.trim()) return;
+        const newKey = currentPrefix + renameValue.trim();
+        if (newKey === oldKey) {
+            setRenamingKey(null);
+            return;
+        }
+        try {
+            await s3.renameObject(currentBucket, oldKey, newKey);
+            setRenamingKey(null);
+            setRenameValue('');
+            await openBucket(currentBucket, currentPrefix);
+        } catch (err) {
+            setError(err.message);
+        }
+    }, [
+        currentBucket,
+        currentPrefix,
+        renameValue,
+        s3,
+        openBucket
+    ]);
+    const startRename = (item)=>{
+        const name = item.key.slice(currentPrefix.length);
+        setRenamingKey(item.key);
+        setRenameValue(name);
+    };
     const handleCreateFolder = (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f2e$pnpm$2f$next$40$15$2e$4$2e$5_react$2d$dom$40$19$2e$2$2e$3_react$40$19$2e$2$2e$3_$5f$react$40$19$2e$2$2e$3$2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["useCallback"])(async ()=>{
         if (!currentBucket || !newFolderName.trim()) return;
         const folderKey = currentPrefix + newFolderName.trim().replace(/\/+$/, '') + '/';
@@ -143,7 +172,7 @@ function S3BrowserComponent({ s3, region = 'us-east-1', onOpenInEditor }) {
                         children: "⌂ All Buckets"
                     }, void 0, false, {
                         fileName: "[project]/s3-browser-plugin-ui/src/S3BrowserComponent.tsx",
-                        lineNumber: 153,
+                        lineNumber: 179,
                         columnNumber: 9
                     }, this),
                     breadcrumbs.map((crumb, i)=>/*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f2e$pnpm$2f$next$40$15$2e$4$2e$5_react$2d$dom$40$19$2e$2$2e$3_react$40$19$2e$2$2e$3_$5f$react$40$19$2e$2$2e$3$2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])("span", {
@@ -154,7 +183,7 @@ function S3BrowserComponent({ s3, region = 'us-east-1', onOpenInEditor }) {
                                     children: "/"
                                 }, void 0, false, {
                                     fileName: "[project]/s3-browser-plugin-ui/src/S3BrowserComponent.tsx",
-                                    lineNumber: 161,
+                                    lineNumber: 187,
                                     columnNumber: 13
                                 }, this),
                                 i === breadcrumbs.length - 1 ? /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f2e$pnpm$2f$next$40$15$2e$4$2e$5_react$2d$dom$40$19$2e$2$2e$3_react$40$19$2e$2$2e$3_$5f$react$40$19$2e$2$2e$3$2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])("span", {
@@ -162,7 +191,7 @@ function S3BrowserComponent({ s3, region = 'us-east-1', onOpenInEditor }) {
                                     children: crumb
                                 }, void 0, false, {
                                     fileName: "[project]/s3-browser-plugin-ui/src/S3BrowserComponent.tsx",
-                                    lineNumber: 163,
+                                    lineNumber: 189,
                                     columnNumber: 15
                                 }, this) : /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f2e$pnpm$2f$next$40$15$2e$4$2e$5_react$2d$dom$40$19$2e$2$2e$3_react$40$19$2e$2$2e$3_$5f$react$40$19$2e$2$2e$3$2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])("button", {
                                     className: "btn btn-link btn-sm p-0 text-decoration-none",
@@ -170,13 +199,13 @@ function S3BrowserComponent({ s3, region = 'us-east-1', onOpenInEditor }) {
                                     children: crumb
                                 }, void 0, false, {
                                     fileName: "[project]/s3-browser-plugin-ui/src/S3BrowserComponent.tsx",
-                                    lineNumber: 165,
+                                    lineNumber: 191,
                                     columnNumber: 15
                                 }, this)
                             ]
                         }, i, true, {
                             fileName: "[project]/s3-browser-plugin-ui/src/S3BrowserComponent.tsx",
-                            lineNumber: 160,
+                            lineNumber: 186,
                             columnNumber: 11
                         }, this)),
                     currentBucket && /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f2e$pnpm$2f$next$40$15$2e$4$2e$5_react$2d$dom$40$19$2e$2$2e$3_react$40$19$2e$2$2e$3_$5f$react$40$19$2e$2$2e$3$2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
@@ -188,7 +217,7 @@ function S3BrowserComponent({ s3, region = 'us-east-1', onOpenInEditor }) {
                                 children: "+ New Folder"
                             }, void 0, false, {
                                 fileName: "[project]/s3-browser-plugin-ui/src/S3BrowserComponent.tsx",
-                                lineNumber: 173,
+                                lineNumber: 199,
                                 columnNumber: 13
                             }, this),
                             /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f2e$pnpm$2f$next$40$15$2e$4$2e$5_react$2d$dom$40$19$2e$2$2e$3_react$40$19$2e$2$2e$3_$5f$react$40$19$2e$2$2e$3$2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])("input", {
@@ -201,7 +230,7 @@ function S3BrowserComponent({ s3, region = 'us-east-1', onOpenInEditor }) {
                                 onChange: (e)=>handleUpload(e.target.files)
                             }, void 0, false, {
                                 fileName: "[project]/s3-browser-plugin-ui/src/S3BrowserComponent.tsx",
-                                lineNumber: 179,
+                                lineNumber: 205,
                                 columnNumber: 13
                             }, this),
                             /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f2e$pnpm$2f$next$40$15$2e$4$2e$5_react$2d$dom$40$19$2e$2$2e$3_react$40$19$2e$2$2e$3_$5f$react$40$19$2e$2$2e$3$2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])("button", {
@@ -210,19 +239,19 @@ function S3BrowserComponent({ s3, region = 'us-east-1', onOpenInEditor }) {
                                 children: "↑ Upload"
                             }, void 0, false, {
                                 fileName: "[project]/s3-browser-plugin-ui/src/S3BrowserComponent.tsx",
-                                lineNumber: 186,
+                                lineNumber: 212,
                                 columnNumber: 13
                             }, this)
                         ]
                     }, void 0, true, {
                         fileName: "[project]/s3-browser-plugin-ui/src/S3BrowserComponent.tsx",
-                        lineNumber: 172,
+                        lineNumber: 198,
                         columnNumber: 11
                     }, this)
                 ]
             }, void 0, true, {
                 fileName: "[project]/s3-browser-plugin-ui/src/S3BrowserComponent.tsx",
-                lineNumber: 152,
+                lineNumber: 178,
                 columnNumber: 7
             }, this),
             showNewFolder && currentBucket && /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f2e$pnpm$2f$next$40$15$2e$4$2e$5_react$2d$dom$40$19$2e$2$2e$3_react$40$19$2e$2$2e$3_$5f$react$40$19$2e$2$2e$3$2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
@@ -241,7 +270,7 @@ function S3BrowserComponent({ s3, region = 'us-east-1', onOpenInEditor }) {
                         autoFocus: true
                     }, void 0, false, {
                         fileName: "[project]/s3-browser-plugin-ui/src/S3BrowserComponent.tsx",
-                        lineNumber: 195,
+                        lineNumber: 221,
                         columnNumber: 11
                     }, this),
                     /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f2e$pnpm$2f$next$40$15$2e$4$2e$5_react$2d$dom$40$19$2e$2$2e$3_react$40$19$2e$2$2e$3_$5f$react$40$19$2e$2$2e$3$2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])("button", {
@@ -251,7 +280,7 @@ function S3BrowserComponent({ s3, region = 'us-east-1', onOpenInEditor }) {
                         children: "Create"
                     }, void 0, false, {
                         fileName: "[project]/s3-browser-plugin-ui/src/S3BrowserComponent.tsx",
-                        lineNumber: 205,
+                        lineNumber: 231,
                         columnNumber: 11
                     }, this),
                     /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f2e$pnpm$2f$next$40$15$2e$4$2e$5_react$2d$dom$40$19$2e$2$2e$3_react$40$19$2e$2$2e$3_$5f$react$40$19$2e$2$2e$3$2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])("button", {
@@ -263,13 +292,13 @@ function S3BrowserComponent({ s3, region = 'us-east-1', onOpenInEditor }) {
                         children: "Cancel"
                     }, void 0, false, {
                         fileName: "[project]/s3-browser-plugin-ui/src/S3BrowserComponent.tsx",
-                        lineNumber: 208,
+                        lineNumber: 234,
                         columnNumber: 11
                     }, this)
                 ]
             }, void 0, true, {
                 fileName: "[project]/s3-browser-plugin-ui/src/S3BrowserComponent.tsx",
-                lineNumber: 194,
+                lineNumber: 220,
                 columnNumber: 9
             }, this),
             error && /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f2e$pnpm$2f$next$40$15$2e$4$2e$5_react$2d$dom$40$19$2e$2$2e$3_react$40$19$2e$2$2e$3_$5f$react$40$19$2e$2$2e$3$2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
@@ -281,7 +310,7 @@ function S3BrowserComponent({ s3, region = 'us-east-1', onOpenInEditor }) {
                         children: "⚠"
                     }, void 0, false, {
                         fileName: "[project]/s3-browser-plugin-ui/src/S3BrowserComponent.tsx",
-                        lineNumber: 216,
+                        lineNumber: 242,
                         columnNumber: 11
                     }, this),
                     " ",
@@ -289,7 +318,7 @@ function S3BrowserComponent({ s3, region = 'us-east-1', onOpenInEditor }) {
                 ]
             }, void 0, true, {
                 fileName: "[project]/s3-browser-plugin-ui/src/S3BrowserComponent.tsx",
-                lineNumber: 215,
+                lineNumber: 241,
                 columnNumber: 9
             }, this),
             loading && /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f2e$pnpm$2f$next$40$15$2e$4$2e$5_react$2d$dom$40$19$2e$2$2e$3_react$40$19$2e$2$2e$3_$5f$react$40$19$2e$2$2e$3$2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
@@ -300,14 +329,14 @@ function S3BrowserComponent({ s3, region = 'us-east-1', onOpenInEditor }) {
                         role: "status"
                     }, void 0, false, {
                         fileName: "[project]/s3-browser-plugin-ui/src/S3BrowserComponent.tsx",
-                        lineNumber: 221,
+                        lineNumber: 247,
                         columnNumber: 11
                     }, this),
                     "Loading…"
                 ]
             }, void 0, true, {
                 fileName: "[project]/s3-browser-plugin-ui/src/S3BrowserComponent.tsx",
-                lineNumber: 220,
+                lineNumber: 246,
                 columnNumber: 9
             }, this),
             !currentBucket && !loading && /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f2e$pnpm$2f$next$40$15$2e$4$2e$5_react$2d$dom$40$19$2e$2$2e$3_react$40$19$2e$2$2e$3_$5f$react$40$19$2e$2$2e$3$2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
@@ -326,7 +355,7 @@ function S3BrowserComponent({ s3, region = 'us-east-1', onOpenInEditor }) {
                                     children: "🔍"
                                 }, void 0, false, {
                                     fileName: "[project]/s3-browser-plugin-ui/src/S3BrowserComponent.tsx",
-                                    lineNumber: 231,
+                                    lineNumber: 257,
                                     columnNumber: 15
                                 }, this),
                                 /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f2e$pnpm$2f$next$40$15$2e$4$2e$5_react$2d$dom$40$19$2e$2$2e$3_react$40$19$2e$2$2e$3_$5f$react$40$19$2e$2$2e$3$2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])("input", {
@@ -337,18 +366,18 @@ function S3BrowserComponent({ s3, region = 'us-east-1', onOpenInEditor }) {
                                     onChange: (e)=>setBucketSearch(e.target.value)
                                 }, void 0, false, {
                                     fileName: "[project]/s3-browser-plugin-ui/src/S3BrowserComponent.tsx",
-                                    lineNumber: 232,
+                                    lineNumber: 258,
                                     columnNumber: 15
                                 }, this)
                             ]
                         }, void 0, true, {
                             fileName: "[project]/s3-browser-plugin-ui/src/S3BrowserComponent.tsx",
-                            lineNumber: 230,
+                            lineNumber: 256,
                             columnNumber: 13
                         }, this)
                     }, void 0, false, {
                         fileName: "[project]/s3-browser-plugin-ui/src/S3BrowserComponent.tsx",
-                        lineNumber: 229,
+                        lineNumber: 255,
                         columnNumber: 11
                     }, this),
                     /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f2e$pnpm$2f$next$40$15$2e$4$2e$5_react$2d$dom$40$19$2e$2$2e$3_react$40$19$2e$2$2e$3_$5f$react$40$19$2e$2$2e$3$2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
@@ -364,7 +393,7 @@ function S3BrowserComponent({ s3, region = 'us-east-1', onOpenInEditor }) {
                                                 children: "Bucket Name"
                                             }, void 0, false, {
                                                 fileName: "[project]/s3-browser-plugin-ui/src/S3BrowserComponent.tsx",
-                                                lineNumber: 245,
+                                                lineNumber: 271,
                                                 columnNumber: 19
                                             }, this),
                                             /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f2e$pnpm$2f$next$40$15$2e$4$2e$5_react$2d$dom$40$19$2e$2$2e$3_react$40$19$2e$2$2e$3_$5f$react$40$19$2e$2$2e$3$2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])("th", {
@@ -374,18 +403,18 @@ function S3BrowserComponent({ s3, region = 'us-east-1', onOpenInEditor }) {
                                                 children: "Region"
                                             }, void 0, false, {
                                                 fileName: "[project]/s3-browser-plugin-ui/src/S3BrowserComponent.tsx",
-                                                lineNumber: 246,
+                                                lineNumber: 272,
                                                 columnNumber: 19
                                             }, this)
                                         ]
                                     }, void 0, true, {
                                         fileName: "[project]/s3-browser-plugin-ui/src/S3BrowserComponent.tsx",
-                                        lineNumber: 244,
+                                        lineNumber: 270,
                                         columnNumber: 17
                                     }, this)
                                 }, void 0, false, {
                                     fileName: "[project]/s3-browser-plugin-ui/src/S3BrowserComponent.tsx",
-                                    lineNumber: 243,
+                                    lineNumber: 269,
                                     columnNumber: 15
                                 }, this),
                                 /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f2e$pnpm$2f$next$40$15$2e$4$2e$5_react$2d$dom$40$19$2e$2$2e$3_react$40$19$2e$2$2e$3_$5f$react$40$19$2e$2$2e$3$2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])("tbody", {
@@ -397,12 +426,12 @@ function S3BrowserComponent({ s3, region = 'us-east-1', onOpenInEditor }) {
                                                 children: buckets.length === 0 ? 'No buckets found' : 'No matching buckets'
                                             }, void 0, false, {
                                                 fileName: "[project]/s3-browser-plugin-ui/src/S3BrowserComponent.tsx",
-                                                lineNumber: 252,
+                                                lineNumber: 278,
                                                 columnNumber: 21
                                             }, this)
                                         }, void 0, false, {
                                             fileName: "[project]/s3-browser-plugin-ui/src/S3BrowserComponent.tsx",
-                                            lineNumber: 251,
+                                            lineNumber: 277,
                                             columnNumber: 19
                                         }, this),
                                         filteredBuckets.map((b)=>/*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f2e$pnpm$2f$next$40$15$2e$4$2e$5_react$2d$dom$40$19$2e$2$2e$3_react$40$19$2e$2$2e$3_$5f$react$40$19$2e$2$2e$3$2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])("tr", {
@@ -417,7 +446,7 @@ function S3BrowserComponent({ s3, region = 'us-east-1', onOpenInEditor }) {
                                                         ]
                                                     }, void 0, true, {
                                                         fileName: "[project]/s3-browser-plugin-ui/src/S3BrowserComponent.tsx",
-                                                        lineNumber: 259,
+                                                        lineNumber: 285,
                                                         columnNumber: 21
                                                     }, this),
                                                     /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f2e$pnpm$2f$next$40$15$2e$4$2e$5_react$2d$dom$40$19$2e$2$2e$3_react$40$19$2e$2$2e$3_$5f$react$40$19$2e$2$2e$3$2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])("td", {
@@ -426,41 +455,41 @@ function S3BrowserComponent({ s3, region = 'us-east-1', onOpenInEditor }) {
                                                             children: region
                                                         }, void 0, false, {
                                                             fileName: "[project]/s3-browser-plugin-ui/src/S3BrowserComponent.tsx",
-                                                            lineNumber: 260,
+                                                            lineNumber: 286,
                                                             columnNumber: 25
                                                         }, this)
                                                     }, void 0, false, {
                                                         fileName: "[project]/s3-browser-plugin-ui/src/S3BrowserComponent.tsx",
-                                                        lineNumber: 260,
+                                                        lineNumber: 286,
                                                         columnNumber: 21
                                                     }, this)
                                                 ]
                                             }, b, true, {
                                                 fileName: "[project]/s3-browser-plugin-ui/src/S3BrowserComponent.tsx",
-                                                lineNumber: 258,
+                                                lineNumber: 284,
                                                 columnNumber: 19
                                             }, this))
                                     ]
                                 }, void 0, true, {
                                     fileName: "[project]/s3-browser-plugin-ui/src/S3BrowserComponent.tsx",
-                                    lineNumber: 249,
+                                    lineNumber: 275,
                                     columnNumber: 15
                                 }, this)
                             ]
                         }, void 0, true, {
                             fileName: "[project]/s3-browser-plugin-ui/src/S3BrowserComponent.tsx",
-                            lineNumber: 242,
+                            lineNumber: 268,
                             columnNumber: 13
                         }, this)
                     }, void 0, false, {
                         fileName: "[project]/s3-browser-plugin-ui/src/S3BrowserComponent.tsx",
-                        lineNumber: 241,
+                        lineNumber: 267,
                         columnNumber: 11
                     }, this)
                 ]
             }, void 0, true, {
                 fileName: "[project]/s3-browser-plugin-ui/src/S3BrowserComponent.tsx",
-                lineNumber: 228,
+                lineNumber: 254,
                 columnNumber: 9
             }, this),
             currentBucket && !loading && /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f2e$pnpm$2f$next$40$15$2e$4$2e$5_react$2d$dom$40$19$2e$2$2e$3_react$40$19$2e$2$2e$3_$5f$react$40$19$2e$2$2e$3$2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
@@ -478,7 +507,7 @@ function S3BrowserComponent({ s3, region = 'us-east-1', onOpenInEditor }) {
                                             children: "Name"
                                         }, void 0, false, {
                                             fileName: "[project]/s3-browser-plugin-ui/src/S3BrowserComponent.tsx",
-                                            lineNumber: 276,
+                                            lineNumber: 302,
                                             columnNumber: 19
                                         }, this),
                                         /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f2e$pnpm$2f$next$40$15$2e$4$2e$5_react$2d$dom$40$19$2e$2$2e$3_react$40$19$2e$2$2e$3_$5f$react$40$19$2e$2$2e$3$2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])("th", {
@@ -488,7 +517,7 @@ function S3BrowserComponent({ s3, region = 'us-east-1', onOpenInEditor }) {
                                             children: "Size"
                                         }, void 0, false, {
                                             fileName: "[project]/s3-browser-plugin-ui/src/S3BrowserComponent.tsx",
-                                            lineNumber: 277,
+                                            lineNumber: 303,
                                             columnNumber: 19
                                         }, this),
                                         /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f2e$pnpm$2f$next$40$15$2e$4$2e$5_react$2d$dom$40$19$2e$2$2e$3_react$40$19$2e$2$2e$3_$5f$react$40$19$2e$2$2e$3$2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])("th", {
@@ -498,7 +527,7 @@ function S3BrowserComponent({ s3, region = 'us-east-1', onOpenInEditor }) {
                                             children: "Last Modified"
                                         }, void 0, false, {
                                             fileName: "[project]/s3-browser-plugin-ui/src/S3BrowserComponent.tsx",
-                                            lineNumber: 278,
+                                            lineNumber: 304,
                                             columnNumber: 19
                                         }, this),
                                         /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f2e$pnpm$2f$next$40$15$2e$4$2e$5_react$2d$dom$40$19$2e$2$2e$3_react$40$19$2e$2$2e$3_$5f$react$40$19$2e$2$2e$3$2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])("th", {
@@ -508,18 +537,18 @@ function S3BrowserComponent({ s3, region = 'us-east-1', onOpenInEditor }) {
                                             children: "Actions"
                                         }, void 0, false, {
                                             fileName: "[project]/s3-browser-plugin-ui/src/S3BrowserComponent.tsx",
-                                            lineNumber: 279,
+                                            lineNumber: 305,
                                             columnNumber: 19
                                         }, this)
                                     ]
                                 }, void 0, true, {
                                     fileName: "[project]/s3-browser-plugin-ui/src/S3BrowserComponent.tsx",
-                                    lineNumber: 275,
+                                    lineNumber: 301,
                                     columnNumber: 17
                                 }, this)
                             }, void 0, false, {
                                 fileName: "[project]/s3-browser-plugin-ui/src/S3BrowserComponent.tsx",
-                                lineNumber: 274,
+                                lineNumber: 300,
                                 columnNumber: 15
                             }, this),
                             /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f2e$pnpm$2f$next$40$15$2e$4$2e$5_react$2d$dom$40$19$2e$2$2e$3_react$40$19$2e$2$2e$3_$5f$react$40$19$2e$2$2e$3$2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])("tbody", {
@@ -531,12 +560,12 @@ function S3BrowserComponent({ s3, region = 'us-east-1', onOpenInEditor }) {
                                             children: "Empty folder"
                                         }, void 0, false, {
                                             fileName: "[project]/s3-browser-plugin-ui/src/S3BrowserComponent.tsx",
-                                            lineNumber: 285,
+                                            lineNumber: 311,
                                             columnNumber: 21
                                         }, this)
                                     }, void 0, false, {
                                         fileName: "[project]/s3-browser-plugin-ui/src/S3BrowserComponent.tsx",
-                                        lineNumber: 284,
+                                        lineNumber: 310,
                                         columnNumber: 19
                                     }, this),
                                     items.map((item)=>/*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f2e$pnpm$2f$next$40$15$2e$4$2e$5_react$2d$dom$40$19$2e$2$2e$3_react$40$19$2e$2$2e$3_$5f$react$40$19$2e$2$2e$3$2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])("tr", {
@@ -546,11 +575,66 @@ function S3BrowserComponent({ s3, region = 'us-east-1', onOpenInEditor }) {
                                                 /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f2e$pnpm$2f$next$40$15$2e$4$2e$5_react$2d$dom$40$19$2e$2$2e$3_react$40$19$2e$2$2e$3_$5f$react$40$19$2e$2$2e$3$2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])("td", {
                                                     children: [
                                                         item.isFolder ? '📁 ' : '📄 ',
-                                                        item.key.slice(currentPrefix.length)
+                                                        renamingKey === item.key ? /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f2e$pnpm$2f$next$40$15$2e$4$2e$5_react$2d$dom$40$19$2e$2$2e$3_react$40$19$2e$2$2e$3_$5f$react$40$19$2e$2$2e$3$2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])("span", {
+                                                            className: "d-inline-flex align-items-center gap-1",
+                                                            children: [
+                                                                /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f2e$pnpm$2f$next$40$15$2e$4$2e$5_react$2d$dom$40$19$2e$2$2e$3_react$40$19$2e$2$2e$3_$5f$react$40$19$2e$2$2e$3$2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])("input", {
+                                                                    type: "text",
+                                                                    className: "form-control form-control-sm d-inline-block",
+                                                                    style: {
+                                                                        width: 250
+                                                                    },
+                                                                    value: renameValue,
+                                                                    onChange: (e)=>setRenameValue(e.target.value),
+                                                                    onKeyDown: (e)=>{
+                                                                        if (e.key === 'Enter') handleRename(item.key);
+                                                                        if (e.key === 'Escape') {
+                                                                            setRenamingKey(null);
+                                                                            setRenameValue('');
+                                                                        }
+                                                                    },
+                                                                    onClick: (e)=>e.stopPropagation(),
+                                                                    autoFocus: true
+                                                                }, void 0, false, {
+                                                                    fileName: "[project]/s3-browser-plugin-ui/src/S3BrowserComponent.tsx",
+                                                                    lineNumber: 324,
+                                                                    columnNumber: 27
+                                                                }, this),
+                                                                /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f2e$pnpm$2f$next$40$15$2e$4$2e$5_react$2d$dom$40$19$2e$2$2e$3_react$40$19$2e$2$2e$3_$5f$react$40$19$2e$2$2e$3$2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])("button", {
+                                                                    className: "btn btn-primary btn-sm",
+                                                                    onClick: (e)=>{
+                                                                        e.stopPropagation();
+                                                                        handleRename(item.key);
+                                                                    },
+                                                                    children: "Save"
+                                                                }, void 0, false, {
+                                                                    fileName: "[project]/s3-browser-plugin-ui/src/S3BrowserComponent.tsx",
+                                                                    lineNumber: 337,
+                                                                    columnNumber: 27
+                                                                }, this),
+                                                                /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f2e$pnpm$2f$next$40$15$2e$4$2e$5_react$2d$dom$40$19$2e$2$2e$3_react$40$19$2e$2$2e$3_$5f$react$40$19$2e$2$2e$3$2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])("button", {
+                                                                    className: "btn btn-outline-secondary btn-sm",
+                                                                    onClick: (e)=>{
+                                                                        e.stopPropagation();
+                                                                        setRenamingKey(null);
+                                                                        setRenameValue('');
+                                                                    },
+                                                                    children: "Cancel"
+                                                                }, void 0, false, {
+                                                                    fileName: "[project]/s3-browser-plugin-ui/src/S3BrowserComponent.tsx",
+                                                                    lineNumber: 338,
+                                                                    columnNumber: 27
+                                                                }, this)
+                                                            ]
+                                                        }, void 0, true, {
+                                                            fileName: "[project]/s3-browser-plugin-ui/src/S3BrowserComponent.tsx",
+                                                            lineNumber: 323,
+                                                            columnNumber: 25
+                                                        }, this) : item.key.slice(currentPrefix.length)
                                                     ]
                                                 }, void 0, true, {
                                                     fileName: "[project]/s3-browser-plugin-ui/src/S3BrowserComponent.tsx",
-                                                    lineNumber: 294,
+                                                    lineNumber: 320,
                                                     columnNumber: 21
                                                 }, this),
                                                 /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f2e$pnpm$2f$next$40$15$2e$4$2e$5_react$2d$dom$40$19$2e$2$2e$3_react$40$19$2e$2$2e$3_$5f$react$40$19$2e$2$2e$3$2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])("td", {
@@ -558,7 +642,7 @@ function S3BrowserComponent({ s3, region = 'us-east-1', onOpenInEditor }) {
                                                     children: item.isFolder ? '' : formatBytes(item.size)
                                                 }, void 0, false, {
                                                     fileName: "[project]/s3-browser-plugin-ui/src/S3BrowserComponent.tsx",
-                                                    lineNumber: 298,
+                                                    lineNumber: 344,
                                                     columnNumber: 21
                                                 }, this),
                                                 /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f2e$pnpm$2f$next$40$15$2e$4$2e$5_react$2d$dom$40$19$2e$2$2e$3_react$40$19$2e$2$2e$3_$5f$react$40$19$2e$2$2e$3$2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])("td", {
@@ -566,7 +650,7 @@ function S3BrowserComponent({ s3, region = 'us-east-1', onOpenInEditor }) {
                                                     children: item.isFolder ? '' : item.lastModified?.toLocaleString()
                                                 }, void 0, false, {
                                                     fileName: "[project]/s3-browser-plugin-ui/src/S3BrowserComponent.tsx",
-                                                    lineNumber: 299,
+                                                    lineNumber: 345,
                                                     columnNumber: 21
                                                 }, this),
                                                 /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f2e$pnpm$2f$next$40$15$2e$4$2e$5_react$2d$dom$40$19$2e$2$2e$3_react$40$19$2e$2$2e$3_$5f$react$40$19$2e$2$2e$3$2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])("td", {
@@ -582,7 +666,7 @@ function S3BrowserComponent({ s3, region = 'us-east-1', onOpenInEditor }) {
                                                                 children: "Download"
                                                             }, void 0, false, {
                                                                 fileName: "[project]/s3-browser-plugin-ui/src/S3BrowserComponent.tsx",
-                                                                lineNumber: 303,
+                                                                lineNumber: 349,
                                                                 columnNumber: 27
                                                             }, this),
                                                             onOpenInEditor && /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f2e$pnpm$2f$next$40$15$2e$4$2e$5_react$2d$dom$40$19$2e$2$2e$3_react$40$19$2e$2$2e$3_$5f$react$40$19$2e$2$2e$3$2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])("button", {
@@ -594,8 +678,20 @@ function S3BrowserComponent({ s3, region = 'us-east-1', onOpenInEditor }) {
                                                                 children: "Open"
                                                             }, void 0, false, {
                                                                 fileName: "[project]/s3-browser-plugin-ui/src/S3BrowserComponent.tsx",
-                                                                lineNumber: 310,
+                                                                lineNumber: 356,
                                                                 columnNumber: 29
+                                                            }, this),
+                                                            /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f2e$pnpm$2f$next$40$15$2e$4$2e$5_react$2d$dom$40$19$2e$2$2e$3_react$40$19$2e$2$2e$3_$5f$react$40$19$2e$2$2e$3$2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])("button", {
+                                                                className: "btn btn-outline-warning",
+                                                                onClick: (e)=>{
+                                                                    e.stopPropagation();
+                                                                    startRename(item);
+                                                                },
+                                                                children: "Rename"
+                                                            }, void 0, false, {
+                                                                fileName: "[project]/s3-browser-plugin-ui/src/S3BrowserComponent.tsx",
+                                                                lineNumber: 363,
+                                                                columnNumber: 27
                                                             }, this),
                                                             /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f2e$pnpm$2f$next$40$15$2e$4$2e$5_react$2d$dom$40$19$2e$2$2e$3_react$40$19$2e$2$2e$3_$5f$react$40$19$2e$2$2e$3$2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])("button", {
                                                                 className: "btn btn-outline-danger",
@@ -606,52 +702,52 @@ function S3BrowserComponent({ s3, region = 'us-east-1', onOpenInEditor }) {
                                                                 children: "Delete"
                                                             }, void 0, false, {
                                                                 fileName: "[project]/s3-browser-plugin-ui/src/S3BrowserComponent.tsx",
-                                                                lineNumber: 317,
+                                                                lineNumber: 369,
                                                                 columnNumber: 27
                                                             }, this)
                                                         ]
                                                     }, void 0, true, {
                                                         fileName: "[project]/s3-browser-plugin-ui/src/S3BrowserComponent.tsx",
-                                                        lineNumber: 302,
+                                                        lineNumber: 348,
                                                         columnNumber: 25
                                                     }, this)
                                                 }, void 0, false, {
                                                     fileName: "[project]/s3-browser-plugin-ui/src/S3BrowserComponent.tsx",
-                                                    lineNumber: 300,
+                                                    lineNumber: 346,
                                                     columnNumber: 21
                                                 }, this)
                                             ]
                                         }, item.key, true, {
                                             fileName: "[project]/s3-browser-plugin-ui/src/S3BrowserComponent.tsx",
-                                            lineNumber: 289,
+                                            lineNumber: 315,
                                             columnNumber: 19
                                         }, this))
                                 ]
                             }, void 0, true, {
                                 fileName: "[project]/s3-browser-plugin-ui/src/S3BrowserComponent.tsx",
-                                lineNumber: 282,
+                                lineNumber: 308,
                                 columnNumber: 15
                             }, this)
                         ]
                     }, void 0, true, {
                         fileName: "[project]/s3-browser-plugin-ui/src/S3BrowserComponent.tsx",
-                        lineNumber: 273,
+                        lineNumber: 299,
                         columnNumber: 13
                     }, this)
                 }, void 0, false, {
                     fileName: "[project]/s3-browser-plugin-ui/src/S3BrowserComponent.tsx",
-                    lineNumber: 272,
+                    lineNumber: 298,
                     columnNumber: 11
                 }, this)
             }, void 0, false, {
                 fileName: "[project]/s3-browser-plugin-ui/src/S3BrowserComponent.tsx",
-                lineNumber: 271,
+                lineNumber: 297,
                 columnNumber: 9
             }, this)
         ]
     }, void 0, true, {
         fileName: "[project]/s3-browser-plugin-ui/src/S3BrowserComponent.tsx",
-        lineNumber: 150,
+        lineNumber: 176,
         columnNumber: 5
     }, this);
 }
@@ -741,6 +837,20 @@ function createS3Operations() {
                 bucket,
                 key
             });
+        },
+        async renameObject (bucket, oldKey, newKey) {
+            await s3Post('renameObject', {
+                bucket,
+                key: oldKey,
+                newKey
+            });
+        },
+        async getFileContent (bucket, key) {
+            const { content } = await s3Post('getFileContent', {
+                bucket,
+                key
+            });
+            return content;
         }
     };
 }
@@ -753,7 +863,7 @@ function Home() {
         onOpenInEditor: (bucket, key)=>router.push(`/editor?bucket=${encodeURIComponent(bucket)}&key=${encodeURIComponent(key)}`)
     }, void 0, false, {
         fileName: "[project]/s3-browser-plugin-ui/app/page.tsx",
-        lineNumber: 62,
+        lineNumber: 69,
         columnNumber: 5
     }, this);
 }

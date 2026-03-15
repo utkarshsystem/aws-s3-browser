@@ -54,6 +54,10 @@ function createS3Operations(): S3Operations {
     async renameObject(bucket: string, oldKey: string, newKey: string) {
       await s3Post('renameObject', { bucket, key: oldKey, newKey });
     },
+    async getFileContent(bucket: string, key: string) {
+      const { content } = await s3Post('getFileContent', { bucket, key });
+      return content as string;
+    },
   };
 }
 

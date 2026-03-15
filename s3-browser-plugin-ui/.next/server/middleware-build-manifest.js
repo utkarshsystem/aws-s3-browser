@@ -4,9 +4,21 @@ globalThis.__BUILD_MANIFEST = {
   },
   "devFiles": [],
   "ampDevFiles": [],
-  "polyfillFiles": [],
+  "polyfillFiles": [
+    "static/chunks/8dd81_next_dist_build_polyfills_polyfill-nomodule.js"
+  ],
   "lowPriorityFiles": [],
-  "rootMainFiles": [],
+  "rootMainFiles": [
+    "static/chunks/[turbopack]_browser_dev_hmr-client_hmr-client_ts_2db1f241._.js",
+    "static/chunks/8dd81_next_dist_compiled_react-dom_7e18b6b4._.js",
+    "static/chunks/8dd81_next_dist_compiled_next-devtools_index_99685599.js",
+    "static/chunks/8dd81_next_dist_compiled_6dee4ab6._.js",
+    "static/chunks/8dd81_next_dist_client_4d391a3e._.js",
+    "static/chunks/8dd81_next_dist_f5d70ad1._.js",
+    "static/chunks/61dca_@swc_helpers_cjs_28edb73c._.js",
+    "static/chunks/s3-browser-plugin-ui_e69f0d32._.js",
+    "static/chunks/s3-browser-plugin-ui_5395ea7d._.js"
+  ],
   "ampFirstPages": []
 };
 globalThis.__BUILD_MANIFEST.lowPriorityFiles = [

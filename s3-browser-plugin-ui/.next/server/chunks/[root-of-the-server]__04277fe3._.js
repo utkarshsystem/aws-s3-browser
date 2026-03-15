@@ -116,7 +116,7 @@ function getClient(region) {
 async function POST(req) {
     try {
         const json = await req.json();
-        const { action, region = 'us-east-1', bucket, prefix, key, contentType, body } = json;
+        const { action, region = 'us-east-1', bucket, prefix, key, newKey, contentType, body } = json;
         const client = getClient(region);
         switch(action){
             case 'listBuckets':
@@ -206,6 +206,21 @@ async function POST(req) {
                         Key: key,
                         Body: '',
                         ContentType: 'application/x-directory'
+                    }));
+                    return __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f2e$pnpm$2f$next$40$15$2e$4$2e$5_react$2d$dom$40$19$2e$2$2e$3_react$40$19$2e$2$2e$3_$5f$react$40$19$2e$2$2e$3$2f$node_modules$2f$next$2f$server$2e$js__$5b$app$2d$route$5d$__$28$ecmascript$29$__["NextResponse"].json({
+                        ok: true
+                    });
+                }
+            case 'renameObject':
+                {
+                    await client.send(new __TURBOPACK__imported__module__$5b$externals$5d2f40$aws$2d$sdk$2f$client$2d$s3__$5b$external$5d$__$2840$aws$2d$sdk$2f$client$2d$s3$2c$__cjs$29$__["CopyObjectCommand"]({
+                        Bucket: bucket,
+                        CopySource: `${bucket}/${key}`,
+                        Key: newKey
+                    }));
+                    await client.send(new __TURBOPACK__imported__module__$5b$externals$5d2f40$aws$2d$sdk$2f$client$2d$s3__$5b$external$5d$__$2840$aws$2d$sdk$2f$client$2d$s3$2c$__cjs$29$__["DeleteObjectCommand"]({
+                        Bucket: bucket,
+                        Key: key
                     }));
                     return __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f2e$pnpm$2f$next$40$15$2e$4$2e$5_react$2d$dom$40$19$2e$2$2e$3_react$40$19$2e$2$2e$3_$5f$react$40$19$2e$2$2e$3$2f$node_modules$2f$next$2f$server$2e$js__$5b$app$2d$route$5d$__$28$ecmascript$29$__["NextResponse"].json({
                         ok: true
