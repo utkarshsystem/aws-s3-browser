@@ -1,104 +1,80 @@
-import {
-  DeleteObjectCommand,
-  GetObjectCommand,
-  ListBucketsCommand,
-  ListObjectsV2Command,
-  PutObjectCommand,
-  S3Client,
-} from '@aws-sdk/client-s3';
-import { getSignedUrl } from '@aws-sdk/s3-request-presigner';
-import type { AwsCredentialIdentity } from '@aws-sdk/types';
 import { useCallback, useEffect, useRef, useState } from 'react';
-import './S3BrowserComponent.css';
 
-export interface S3BrowserComponentProps {
-  /** AWS region, e.g. "us-east-1" */
-  region: string;
-  /**
-   * Returns AWS credentials on demand.
-   * - Local dev (s3-app): read VITE_AWS_* env vars
-   * - Next.js deployment: call a Server Action backed by fromNodeProviderChain()
-   */
-  credentialsProvider: () => Promise<AwsCredentialIdentity>;
-  /** Called when the user clicks "Open" on a file — navigate to your editor route. */
-  onOpenInEditor?: (bucket: string, key: string) => void;
-}
-
-interface S3Item {
+export interface S3Item {
   key: string;
   size?: number;
   lastModified?: Date;
   isFolder: boolean;
 }
 
-export function S3BrowserComponent({ region, credentialsProvider, onOpenInEditor }: S3BrowserComponentProps) {
+/** Abstract operations the component needs — decoupled from AWS SDK. */
+export interface S3Operations {
+  listBuckets(): Promise<string[]>;
+  listObjects(bucket: string, prefix: string): Promise<S3Item[]>;
+  getDownloadUrl(bucket: string, key: string): Promise<string>;
+  uploadFile(bucket: string, key: string, file: File): Promise<void>;
+  deleteObject(bucket: string, key: string): Promise<void>;
+  createFolder(bucket: string, key: string): Promise<void>;
+}
+
+export interface S3BrowserComponentProps {
+  /** Provide all S3 operations (typically backed by server API routes). */
+  s3: S3Operations;
+  /** AWS region — used for display only. */
+  region?: string;
+  /** Called when the user clicks "Open" on a file — navigate to your editor route. */
+  onOpenInEditor?: (bucket: string, key: string) => void;
+}
+
+export function S3BrowserComponent({ s3, region = 'us-east-1', onOpenInEditor }: S3BrowserComponentProps) {
   const [buckets, setBuckets] = useState<string[]>([]);
   const [currentBucket, setCurrentBucket] = useState<string | null>(null);
   const [currentPrefix, setCurrentPrefix] = useState('');
   const [items, setItems] = useState<S3Item[]>([]);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
+  const [bucketSearch, setBucketSearch] = useState('');
+  const [showNewFolder, setShowNewFolder] = useState(false);
+  const [newFolderName, setNewFolderName] = useState('');
   const fileInputRef = useRef<HTMLInputElement>(null);
 
-  const getClient = useCallback(async () => {
-    const credentials = await credentialsProvider();
-    return new S3Client({ region, credentials });
-  }, [region, credentialsProvider]);
+  const filteredBuckets = buckets.filter((b) =>
+    b.toLowerCase().includes(bucketSearch.toLowerCase())
+  );
 
   // List all buckets on mount
   useEffect(() => {
     setLoading(true);
     setError(null);
-    getClient()
-      .then((client) => client.send(new ListBucketsCommand({})))
-      .then((res) => setBuckets(res.Buckets?.map((b) => b.Name!) ?? []))
+    s3.listBuckets()
+      .then((names) => setBuckets(names))
       .catch((err) => setError(err.message))
       .finally(() => setLoading(false));
-  }, [getClient]);
+  }, [s3]);
 
   const openBucket = useCallback(
     async (bucket: string, prefix = '') => {
       setLoading(true);
       setError(null);
       try {
-        const client = await getClient();
-        const res = await client.send(
-          new ListObjectsV2Command({ Bucket: bucket, Prefix: prefix, Delimiter: '/' })
-        );
-        const folders: S3Item[] = (res.CommonPrefixes ?? []).map((cp) => ({
-          key: cp.Prefix!,
-          isFolder: true,
-        }));
-        const files: S3Item[] = (res.Contents ?? [])
-          .filter((obj) => obj.Key !== prefix)
-          .map((obj) => ({
-            key: obj.Key!,
-            size: obj.Size,
-            lastModified: obj.LastModified,
-            isFolder: false,
-          }));
+        const result = await s3.listObjects(bucket, prefix);
         setCurrentBucket(bucket);
         setCurrentPrefix(prefix);
-        setItems([...folders, ...files]);
+        setItems(result);
       } catch (err: any) {
         setError(err.message);
       } finally {
         setLoading(false);
       }
     },
-    [getClient]
+    [s3]
   );
 
   const handleDownload = useCallback(
     async (key: string) => {
       if (!currentBucket) return;
       try {
-        const client = await getClient();
-        const url = await getSignedUrl(
-          client,
-          new GetObjectCommand({ Bucket: currentBucket, Key: key }),
-          { expiresIn: 300 }
-        );
+        const url = await s3.getDownloadUrl(currentBucket, key);
         const a = document.createElement('a');
         a.href = url;
         a.download = key.split('/').pop() ?? key;
@@ -109,21 +85,20 @@ export function S3BrowserComponent({ region, credentialsProvider, onOpenInEditor
         setError(err.message);
       }
     },
-    [currentBucket, getClient]
+    [currentBucket, s3]
   );
 
   const handleDelete = useCallback(
     async (key: string) => {
       if (!currentBucket || !window.confirm(`Delete "${key}"?`)) return;
       try {
-        const client = await getClient();
-        await client.send(new DeleteObjectCommand({ Bucket: currentBucket, Key: key }));
+        await s3.deleteObject(currentBucket, key);
         await openBucket(currentBucket, currentPrefix);
       } catch (err: any) {
         setError(err.message);
       }
     },
-    [currentBucket, currentPrefix, getClient, openBucket]
+    [currentBucket, currentPrefix, s3, openBucket]
   );
 
   const handleUpload = useCallback(
@@ -131,16 +106,8 @@ export function S3BrowserComponent({ region, credentialsProvider, onOpenInEditor
       if (!currentBucket || !files) return;
       setLoading(true);
       try {
-        const client = await getClient();
         for (const file of Array.from(files)) {
-          await client.send(
-            new PutObjectCommand({
-              Bucket: currentBucket,
-              Key: currentPrefix + file.name,
-              Body: file,
-              ContentType: file.type,
-            })
-          );
+          await s3.uploadFile(currentBucket, currentPrefix + file.name, file);
         }
         await openBucket(currentBucket, currentPrefix);
       } catch (err: any) {
@@ -149,8 +116,21 @@ export function S3BrowserComponent({ region, credentialsProvider, onOpenInEditor
         setLoading(false);
       }
     },
-    [currentBucket, currentPrefix, getClient, openBucket]
+    [currentBucket, currentPrefix, s3, openBucket]
   );
+
+  const handleCreateFolder = useCallback(async () => {
+    if (!currentBucket || !newFolderName.trim()) return;
+    const folderKey = currentPrefix + newFolderName.trim().replace(/\/+$/, '') + '/';
+    try {
+      await s3.createFolder(currentBucket, folderKey);
+      setNewFolderName('');
+      setShowNewFolder(false);
+      await openBucket(currentBucket, currentPrefix);
+    } catch (err: any) {
+      setError(err.message);
+    }
+  }, [currentBucket, currentPrefix, newFolderName, s3, openBucket]);
 
   const breadcrumbs = currentBucket
     ? [currentBucket, ...currentPrefix.split('/').filter(Boolean)]
@@ -167,28 +147,35 @@ export function S3BrowserComponent({ region, credentialsProvider, onOpenInEditor
   };
 
   return (
-    <div className="s3-browser-container">
+    <div className="card border shadow-sm">
       {/* Toolbar / breadcrumbs */}
-      <div className="s3-browser-toolbar">
+      <div className="card-header bg-light d-flex align-items-center flex-wrap gap-2 py-2">
         <button
-          className="s3-btn s3-btn-secondary"
+          className="btn btn-outline-dark btn-sm"
           onClick={() => { setCurrentBucket(null); setCurrentPrefix(''); setItems([]); }}
         >
-          &#x2302; All Buckets
+          ⌂ All Buckets
         </button>
         {breadcrumbs.map((crumb, i) => (
-          <span key={i} className="s3-breadcrumb">
-            <span className="s3-breadcrumb-sep">/</span>
-            <button
-              className={`s3-btn s3-btn-crumb${i === breadcrumbs.length - 1 ? ' active' : ''}`}
-              onClick={() => handleBreadcrumb(i)}
-            >
-              {crumb}
-            </button>
+          <span key={i} className="d-flex align-items-center">
+            <span className="text-muted px-1">/</span>
+            {i === breadcrumbs.length - 1 ? (
+              <span className="fw-semibold">{crumb}</span>
+            ) : (
+              <button className="btn btn-link btn-sm p-0 text-decoration-none" onClick={() => handleBreadcrumb(i)}>
+                {crumb}
+              </button>
+            )}
           </span>
         ))}
         {currentBucket && (
-          <div className="s3-toolbar-actions">
+          <div className="ms-auto d-flex gap-2">
+            <button
+              className="btn btn-outline-primary btn-sm"
+              onClick={() => setShowNewFolder(!showNewFolder)}
+            >
+              + New Folder
+            </button>
             <input
               type="file"
               multiple
@@ -196,88 +183,152 @@ export function S3BrowserComponent({ region, credentialsProvider, onOpenInEditor
               style={{ display: 'none' }}
               onChange={(e) => handleUpload(e.target.files)}
             />
-            <button className="s3-btn s3-btn-primary" onClick={() => fileInputRef.current?.click()}>
-              &#x2191; Upload
+            <button className="btn btn-success btn-sm" onClick={() => fileInputRef.current?.click()}>
+              ↑ Upload
             </button>
           </div>
         )}
       </div>
 
-      {error && <div className="s3-error">&#x26A0; {error}</div>}
-      {loading && <div className="s3-loading">Loading…</div>}
+      {showNewFolder && currentBucket && (
+        <div className="d-flex align-items-center gap-2 px-3 py-2 bg-light border-bottom">
+          <input
+            type="text"
+            className="form-control form-control-sm"
+            style={{ maxWidth: 300 }}
+            placeholder="Folder name"
+            value={newFolderName}
+            onChange={(e) => setNewFolderName(e.target.value)}
+            onKeyDown={(e) => e.key === 'Enter' && handleCreateFolder()}
+            autoFocus
+          />
+          <button className="btn btn-primary btn-sm" onClick={handleCreateFolder} disabled={!newFolderName.trim()}>
+            Create
+          </button>
+          <button className="btn btn-outline-secondary btn-sm" onClick={() => { setShowNewFolder(false); setNewFolderName(''); }}>
+            Cancel
+          </button>
+        </div>
+      )}
+
+      {error && (
+        <div className="alert alert-danger m-3 mb-0 py-2 d-flex align-items-center" role="alert">
+          <strong className="me-2">⚠</strong> {error}
+        </div>
+      )}
+      {loading && (
+        <div className="d-flex align-items-center justify-content-center p-4 text-secondary">
+          <div className="spinner-border spinner-border-sm me-2" role="status" />
+          Loading…
+        </div>
+      )}
 
       {/* Bucket list */}
       {!currentBucket && !loading && (
-        <table className="s3-table">
-          <thead>
-            <tr><th>Bucket Name</th><th>Region</th></tr>
-          </thead>
-          <tbody>
-            {buckets.length === 0 && (
-              <tr><td colSpan={2} className="s3-empty">No buckets found</td></tr>
-            )}
-            {buckets.map((b) => (
-              <tr key={b} className="s3-row-clickable" onClick={() => openBucket(b)}>
-                <td>&#x1FA23; {b}</td>
-                <td>{region}</td>
-              </tr>
-            ))}
-          </tbody>
-        </table>
+        <div className="card-body p-0">
+          <div className="p-3">
+            <div className="input-group" style={{ maxWidth: 400 }}>
+              <span className="input-group-text bg-white">🔍</span>
+              <input
+                type="text"
+                className="form-control"
+                placeholder="Search buckets…"
+                value={bucketSearch}
+                onChange={(e) => setBucketSearch(e.target.value)}
+              />
+            </div>
+          </div>
+          <div className="table-responsive">
+            <table className="table table-striped table-hover align-middle mb-0">
+              <thead className="table-dark">
+                <tr>
+                  <th>Bucket Name</th>
+                  <th style={{ width: 150 }}>Region</th>
+                </tr>
+              </thead>
+              <tbody>
+                {filteredBuckets.length === 0 && (
+                  <tr>
+                    <td colSpan={2} className="text-center text-muted fst-italic py-4">
+                      {buckets.length === 0 ? 'No buckets found' : 'No matching buckets'}
+                    </td>
+                  </tr>
+                )}
+                {filteredBuckets.map((b) => (
+                  <tr key={b} role="button" className="cursor-pointer" onClick={() => openBucket(b)}>
+                    <td>🪣 {b}</td>
+                    <td><span className="badge bg-secondary">{region}</span></td>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
+          </div>
+        </div>
       )}
 
       {/* Objects / folders */}
       {currentBucket && !loading && (
-        <table className="s3-table">
-          <thead>
-            <tr><th>Name</th><th>Size</th><th>Last Modified</th><th></th></tr>
-          </thead>
-          <tbody>
-            {items.length === 0 && (
-              <tr><td colSpan={4} className="s3-empty">Empty folder</td></tr>
-            )}
-            {items.map((item) => (
-              <tr
-                key={item.key}
-                className={item.isFolder ? 's3-row-clickable' : ''}
-                onClick={() => item.isFolder && openBucket(currentBucket, item.key)}
-              >
-                <td>
-                  {item.isFolder ? '&#x1F4C1; ' : '&#x1F4C4; '}
-                  {item.key.slice(currentPrefix.length)}
-                </td>
-                <td>{item.isFolder ? '' : formatBytes(item.size)}</td>
-                <td>{item.isFolder ? '' : item.lastModified?.toLocaleString()}</td>
-                <td className="s3-actions-cell">
-                  {!item.isFolder && (
-                    <>
-                      <button
-                        className="s3-btn s3-btn-sm"
-                        onClick={(e) => { e.stopPropagation(); handleDownload(item.key); }}
-                      >
-                        Download
-                      </button>
-                      {onOpenInEditor && (
-                        <button
-                          className="s3-btn s3-btn-sm s3-btn-info"
-                          onClick={(e) => { e.stopPropagation(); onOpenInEditor(currentBucket, item.key); }}
-                        >
-                          Open
-                        </button>
+        <div className="card-body p-0">
+          <div className="table-responsive">
+            <table className="table table-striped table-hover align-middle mb-0">
+              <thead className="table-dark">
+                <tr>
+                  <th>Name</th>
+                  <th style={{ width: 120 }}>Size</th>
+                  <th style={{ width: 200 }}>Last Modified</th>
+                  <th style={{ width: 250 }}>Actions</th>
+                </tr>
+              </thead>
+              <tbody>
+                {items.length === 0 && (
+                  <tr>
+                    <td colSpan={4} className="text-center text-muted fst-italic py-4">Empty folder</td>
+                  </tr>
+                )}
+                {items.map((item) => (
+                  <tr
+                    key={item.key}
+                    role={item.isFolder ? 'button' : undefined}
+                    onClick={() => item.isFolder && openBucket(currentBucket, item.key)}
+                  >
+                    <td>
+                      {item.isFolder ? '📁 ' : '📄 '}
+                      {item.key.slice(currentPrefix.length)}
+                    </td>
+                    <td className="text-muted small">{item.isFolder ? '' : formatBytes(item.size)}</td>
+                    <td className="text-muted small">{item.isFolder ? '' : item.lastModified?.toLocaleString()}</td>
+                    <td>
+                      {!item.isFolder && (
+                        <div className="btn-group btn-group-sm">
+                          <button
+                            className="btn btn-outline-secondary"
+                            onClick={(e) => { e.stopPropagation(); handleDownload(item.key); }}
+                          >
+                            Download
+                          </button>
+                          {onOpenInEditor && (
+                            <button
+                              className="btn btn-outline-primary"
+                              onClick={(e) => { e.stopPropagation(); onOpenInEditor(currentBucket, item.key); }}
+                            >
+                              Open
+                            </button>
+                          )}
+                          <button
+                            className="btn btn-outline-danger"
+                            onClick={(e) => { e.stopPropagation(); handleDelete(item.key); }}
+                          >
+                            Delete
+                          </button>
+                        </div>
                       )}
-                      <button
-                        className="s3-btn s3-btn-sm s3-btn-danger"
-                        onClick={(e) => { e.stopPropagation(); handleDelete(item.key); }}
-                      >
-                        Delete
-                      </button>
-                    </>
-                  )}
-                </td>
-              </tr>
-            ))}
-          </tbody>
-        </table>
+                    </td>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
+          </div>
+        </div>
       )}
     </div>
   );

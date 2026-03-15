@@ -1,0 +1,14 @@
+(globalThis.TURBOPACK = globalThis.TURBOPACK || []).push([typeof document === "object" ? document.currentScript : undefined, {
+
+"[project]/node_modules/.pnpm/@smithy+core@3.23.11/node_modules/@smithy/core/dist-es/submodules/event-streams/index.js [app-client] (ecmascript, async loader)": ((__turbopack_context__) => {
+
+__turbopack_context__.v((parentImport) => {
+    return Promise.all([
+  "static/chunks/99a6b_@smithy_core_dist-es_submodules_event-streams_4e5b693f._.js",
+  "static/chunks/99a6b_@smithy_core_dist-es_submodules_event-streams_index_9d5910a8.js"
+].map((chunk) => __turbopack_context__.l(chunk))).then(() => {
+        return parentImport("[project]/node_modules/.pnpm/@smithy+core@3.23.11/node_modules/@smithy/core/dist-es/submodules/event-streams/index.js [app-client] (ecmascript)");
+    });
+});
+}),
+}]);
