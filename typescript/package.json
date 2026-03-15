@@ -1,7 +1,7 @@
 {
   "name": "vcp-s3-browser-plugin-ts",
-  "version": "1.0.5",
-  "description": "TypeScript S3 Storage Browser plugin models, abstracts, and service definitions",
+  "version": "1.0.6",
+  "description": "TypeScript S3 Storage Browser plugin models, abstracts, service definitions, and API route handlers",
   "main": "dist/index.js",
   "types": "dist/index.d.ts",
   "files": [
@@ -9,15 +9,31 @@
     "README.md",
     "package.json"
   ],
+  "exports": {
+    ".": {
+      "types": "./dist/index.d.ts",
+      "default": "./dist/index.js"
+    },
+    "./server": {
+      "types": "./dist/server.d.ts",
+      "default": "./dist/server.js"
+    }
+  },
   "scripts": {
     "build": "tsc"
   },
   "author": "Virtusa Systems LLC",
   "license": "ISC",
   "dependencies": {
+    "@aws-sdk/client-s3": "^3.990.0",
+    "@aws-sdk/credential-providers": "^3.990.0",
+    "@aws-sdk/s3-request-presigner": "^3.990.0",
     "typescript": "^5.7.3"
   },
   "devDependencies": {
     "@types/node": "^20.0.0"
+  },
+  "peerDependencies": {
+    "next": ">=14.0.0"
   }
 }

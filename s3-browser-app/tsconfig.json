@@ -13,11 +13,7 @@
     "isolatedModules": true,
     "jsx": "react-jsx",
     "incremental": true,
-    "plugins": [{"name": "next"}],
-    "paths": {
-      "@/*": ["./"],
-      "vcp-s3-browser-ui": ["../s3-browser-plugin-ui/index.ts"]
-    }
+    "plugins": [{"name": "next"}]
   },
   "include": [
     "next-env.d.ts",
