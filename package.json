@@ -13,7 +13,7 @@
     "install:app": "cd s3-app && pnpm install",
     "dev:app": "cd s3-app && pnpm dev",
     "build:app": "cd s3-app && pnpm build",
-    "sandbox": "cd s3-app && npm run sandbox",
+    "sandbox": "cd s3-app && cross-env npm_config_user_agent=npm npx ampx sandbox",
     "publish:ui:patch": "cd s3-browser-app && pnpm version patch --no-git-tag-version && pnpm publish --no-git-checks --registry https://virtusasystems-787952688011.d.codeartifact.us-east-1.amazonaws.com/npm/vcp-react-components/",
     "publish:ui:minor": "cd s3-browser-app && pnpm version minor --no-git-tag-version && pnpm publish --no-git-checks --registry https://virtusasystems-787952688011.d.codeartifact.us-east-1.amazonaws.com/npm/vcp-react-components/",
     "publish:ui:major": "cd s3-browser-app && pnpm version major --no-git-tag-version && pnpm publish --no-git-checks --registry https://virtusasystems-787952688011.d.codeartifact.us-east-1.amazonaws.com/npm/vcp-react-components/",

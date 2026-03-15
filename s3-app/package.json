@@ -8,8 +8,8 @@
     "build": "tsc -b && vite build",
     "lint": "eslint .",
     "preview": "vite preview",
-    "sandbox": "npx ampx sandbox",
-    "sandbox:generate": "npx ampx generate outputs --branch main",
+    "sandbox": "cross-env npm_config_user_agent=npm npx ampx sandbox",
+    "sandbox:generate": "cross-env npm_config_user_agent=npm npx ampx generate outputs --branch main",
     "format": "prettier --write \"src/**/*.{js,jsx,ts,tsx}\""
   },
   "dependencies": {
@@ -30,6 +30,7 @@
     "aws-cdk": "^2.1000.2",
     "aws-cdk-lib": "^2.189.1",
     "constructs": "^10.4.2",
+    "cross-env": "^7.0.3",
     "esbuild": "^0.25.0",
     "eslint": "^9.19.0",
     "eslint-plugin-react-hooks": "^5.0.0",
