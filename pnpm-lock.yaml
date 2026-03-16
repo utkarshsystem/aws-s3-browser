@@ -30,11 +30,11 @@ importers:
         specifier: ^19.0.0
         version: 19.2.4(react@19.2.4)
       vcp-s3-browser-plugin-ts:
-        specifier: ^1.0.7
-        version: 1.0.7(next@16.1.6(react-dom@19.2.4(react@19.2.4))(react@19.2.4))
+        specifier: ^1.0.8
+        version: 1.0.8(next@16.1.6(react-dom@19.2.4(react@19.2.4))(react@19.2.4))
       vcp-s3-browser-ui:
-        specifier: ^1.1.3
-        version: 1.1.3(next@16.1.6(react-dom@19.2.4(react@19.2.4))(react@19.2.4))(react-dom@19.2.4(react@19.2.4))(react@19.2.4)
+        specifier: ^1.1.4
+        version: 1.1.4(next@16.1.6(react-dom@19.2.4(react@19.2.4))(react@19.2.4))(react-dom@19.2.4(react@19.2.4))(react@19.2.4)
     devDependencies:
       '@types/node':
         specifier: ^20.0.0
@@ -2096,8 +2096,13 @@ packages:
     peerDependencies:
       next: '>=14.0.0'
 
-  vcp-s3-browser-ui@1.1.3:
-    resolution: {integrity: sha512-nbwYLjcafF3kBVZkW5R2sg/pibS/qbtmBe7O7dUagabdk+fmMK0n31YgUam4y3dJd0Hau7sq6doSCIlEGWdURw==}
+  vcp-s3-browser-plugin-ts@1.0.8:
+    resolution: {integrity: sha512-0lZdkcc2g04Y9K7jszU2eHEgIFDhFgHeIT1y5qsEXLcdWODCod4L0HNhxuYtrwmSNSjN+aXZxS0pCsQ3QJ5aeQ==}
+    peerDependencies:
+      next: '>=14.0.0'
+
+  vcp-s3-browser-ui@1.1.4:
+    resolution: {integrity: sha512-Sh/odJy2ozdz4QGErzOrpmrIVcqEx79EHjg+PTmlEBQZjKJWOKBrUujdvvi7Klr18DX95Wp2xGaf6L9WCsEMgw==}
     peerDependencies:
       next: '>=14.0.0'
       react: ^19.0.0
@@ -4937,7 +4942,7 @@ snapshots:
     transitivePeerDependencies:
       - aws-crt
 
-  vcp-s3-browser-plugin-ts@1.0.7(next@16.1.6(react-dom@19.2.4(react@19.2.4))(react@19.2.4)):
+  vcp-s3-browser-plugin-ts@1.0.8(next@16.1.6(react-dom@19.2.4(react@19.2.4))(react@19.2.4)):
     dependencies:
       '@aws-sdk/client-s3': 3.1009.0
       '@aws-sdk/credential-providers': 3.1009.0
@@ -4947,13 +4952,13 @@ snapshots:
     transitivePeerDependencies:
       - aws-crt
 
-  vcp-s3-browser-ui@1.1.3(next@16.1.6(react-dom@19.2.4(react@19.2.4))(react@19.2.4))(react-dom@19.2.4(react@19.2.4))(react@19.2.4):
+  vcp-s3-browser-ui@1.1.4(next@16.1.6(react-dom@19.2.4(react@19.2.4))(react@19.2.4))(react-dom@19.2.4(react@19.2.4))(react@19.2.4):
     dependencies:
       js-yaml: 4.1.1
       next: 16.1.6(react-dom@19.2.4(react@19.2.4))(react@19.2.4)
       react: 19.2.4
       react-dom: 19.2.4(react@19.2.4)
-      vcp-s3-browser-plugin-ts: 1.0.7(next@16.1.6(react-dom@19.2.4(react@19.2.4))(react@19.2.4))
+      vcp-s3-browser-plugin-ts: 1.0.8(next@16.1.6(react-dom@19.2.4(react@19.2.4))(react@19.2.4))
     transitivePeerDependencies:
       - aws-crt
 
