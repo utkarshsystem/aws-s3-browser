@@ -1,6 +1,6 @@
 {
   "name": "vcp-s3-browser-plugin-ts",
-  "version": "1.0.7",
+  "version": "1.0.8",
   "description": "TypeScript S3 Storage Browser plugin models, abstracts, service definitions, and API route handlers",
   "main": "dist/index.js",
   "types": "dist/index.d.ts",
