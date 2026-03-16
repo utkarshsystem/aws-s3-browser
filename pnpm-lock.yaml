@@ -30,11 +30,11 @@ importers:
         specifier: ^19.0.0
         version: 19.2.4(react@19.2.4)
       vcp-s3-browser-plugin-ts:
-        specifier: workspace:*
-        version: link:../typescript
+        specifier: ^1.0.7
+        version: 1.0.7(next@16.1.6(react-dom@19.2.4(react@19.2.4))(react@19.2.4))
       vcp-s3-browser-ui:
-        specifier: workspace:*
-        version: link:../vcp-s3-browser-ui
+        specifier: ^1.1.3
+        version: 1.1.3(next@16.1.6(react-dom@19.2.4(react@19.2.4))(react@19.2.4))(react-dom@19.2.4(react@19.2.4))(react@19.2.4)
     devDependencies:
       '@types/node':
         specifier: ^20.0.0
@@ -77,8 +77,8 @@ importers:
         specifier: ^4.1.1
         version: 4.1.1
       vcp-s3-browser-plugin-ts:
-        specifier: workspace:*
-        version: link:../typescript
+        specifier: ^1.0.7
+        version: 1.0.7(next@15.4.5(react-dom@19.2.3(react@19.2.3))(react@19.2.3))
     devDependencies:
       '@eslint/eslintrc':
         specifier: ^3
@@ -2090,6 +2090,18 @@ packages:
 
   uri-js@4.4.1:
     resolution: {integrity: sha512-7rKUyy33Q1yc98pQ1DAmLtwX109F7TIfWlW1Ydo8Wl1ii1SeHieeh0HHfPeL2fMXK6z0s8ecKs9frCuLJvndBg==}
+
+  vcp-s3-browser-plugin-ts@1.0.7:
+    resolution: {integrity: sha512-UtThIcHvMnn/WDI7jXHIJfvuoJEUgA19Vs39jMoO6zyjBflnlEHjbveXli7UMLxZomf+PfTs6XbrJ0IGIQFFoA==}
+    peerDependencies:
+      next: '>=14.0.0'
+
+  vcp-s3-browser-ui@1.1.3:
+    resolution: {integrity: sha512-nbwYLjcafF3kBVZkW5R2sg/pibS/qbtmBe7O7dUagabdk+fmMK0n31YgUam4y3dJd0Hau7sq6doSCIlEGWdURw==}
+    peerDependencies:
+      next: '>=14.0.0'
+      react: ^19.0.0
+      react-dom: ^19.0.0
 
   which-boxed-primitive@1.1.1:
     resolution: {integrity: sha512-TbX3mj8n0odCBFVlY8AxkqcHASw3L60jIuF8jFP78az3C2YhmGvqbHBpAjTRH2/xqYunrJ9g1jSyjCjpoWzIAA==}
@@ -4914,6 +4926,36 @@ snapshots:
   uri-js@4.4.1:
     dependencies:
       punycode: 2.3.1
+
+  vcp-s3-browser-plugin-ts@1.0.7(next@15.4.5(react-dom@19.2.3(react@19.2.3))(react@19.2.3)):
+    dependencies:
+      '@aws-sdk/client-s3': 3.1009.0
+      '@aws-sdk/credential-providers': 3.1009.0
+      '@aws-sdk/s3-request-presigner': 3.1009.0
+      next: 15.4.5(react-dom@19.2.3(react@19.2.3))(react@19.2.3)
+      typescript: 5.9.3
+    transitivePeerDependencies:
+      - aws-crt
+
+  vcp-s3-browser-plugin-ts@1.0.7(next@16.1.6(react-dom@19.2.4(react@19.2.4))(react@19.2.4)):
+    dependencies:
+      '@aws-sdk/client-s3': 3.1009.0
+      '@aws-sdk/credential-providers': 3.1009.0
+      '@aws-sdk/s3-request-presigner': 3.1009.0
+      next: 16.1.6(react-dom@19.2.4(react@19.2.4))(react@19.2.4)
+      typescript: 5.9.3
+    transitivePeerDependencies:
+      - aws-crt
+
+  vcp-s3-browser-ui@1.1.3(next@16.1.6(react-dom@19.2.4(react@19.2.4))(react@19.2.4))(react-dom@19.2.4(react@19.2.4))(react@19.2.4):
+    dependencies:
+      js-yaml: 4.1.1
+      next: 16.1.6(react-dom@19.2.4(react@19.2.4))(react@19.2.4)
+      react: 19.2.4
+      react-dom: 19.2.4(react@19.2.4)
+      vcp-s3-browser-plugin-ts: 1.0.7(next@16.1.6(react-dom@19.2.4(react@19.2.4))(react@19.2.4))
+    transitivePeerDependencies:
+      - aws-crt
 
   which-boxed-primitive@1.1.1:
     dependencies:

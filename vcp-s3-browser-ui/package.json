@@ -28,7 +28,7 @@
   },
   "dependencies": {
     "js-yaml": "^4.1.1",
-    "vcp-s3-browser-plugin-ts": "workspace:*"
+    "vcp-s3-browser-plugin-ts": "^1.0.7"
   },
   "devDependencies": {
     "@eslint/eslintrc": "^3",
