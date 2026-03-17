@@ -12,7 +12,7 @@
     "react": "^19.0.0",
     "react-dom": "^19.0.0",
     "vcp-s3-browser-plugin-ts": "^1.0.8",
-    "vcp-s3-browser-ui": "^1.1.4"
+    "vcp-s3-browser-ui": "^1.1.6"
   },
   "devDependencies": {
     "@types/node": "^20.0.0",

@@ -2,7 +2,6 @@
 
 import yaml from 'js-yaml';
 import Link from 'next/link';
-import { useSearchParams } from 'next/navigation';
 import { useCallback, useEffect, useState } from 'react';
 
 const region = process.env.NEXT_PUBLIC_AWS_REGION || 'us-east-1';
@@ -23,10 +22,7 @@ export default function S3GridPage({
   gridFolder?: string;
   jsonOnly?: boolean;
 } = {}) {
-  const params = useSearchParams();
-  const selectedFolder = normalizeGridFolder(
-    grid ?? gridFolder ?? params.get('grid') ?? params.get('gridFolder') ?? ''
-  );
+  const selectedFolder = normalizeGridFolder(grid ?? gridFolder ?? '');
   const [folders, setFolders] = useState<string[]>([]);
   const [gridConfigText, setGridConfigText] = useState('');
   const [gridConfigData, setGridConfigData] = useState<unknown>(null);

@@ -1,6 +1,6 @@
 {
   "name": "vcp-s3-browser-ui",
-  "version": "1.1.4",
+  "version": "1.1.6",
   "description": "S3 Storage Browser React Component Plugin",
   "main": "dist/index.js",
   "types": "dist/index.d.ts",
