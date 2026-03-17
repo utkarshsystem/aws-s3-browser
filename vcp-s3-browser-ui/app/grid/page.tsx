@@ -1,10 +1,5 @@
-import S3GridPage from '../../src/pages/S3GridPage';
+import { redirect } from 'next/navigation';
 
-export default async function GridPage({
-  searchParams,
-}: {
-  searchParams: Promise<{ grid?: string; gridFolder?: string }>;
-}) {
-  const params = await searchParams;
-  return <S3GridPage grid={params.grid} gridFolder={params.gridFolder} />;
+export default function GridPage() {
+  redirect('/grid/users');
 }
