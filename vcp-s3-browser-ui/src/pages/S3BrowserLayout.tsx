@@ -20,6 +20,9 @@ export default function S3BrowserLayout({ children }: { children: ReactNode }) {
             <li className="nav-item">
               <Link href="/editor" className="nav-link">Editor</Link>
             </li>
+            <li className="nav-item">
+              <Link href="/pdfExplorer/pdfexplorer" className="nav-link">PDF Explorer</Link>
+            </li>
           </ul>
         </nav>
         <main className="container-fluid py-4 px-4">{children}</main>
