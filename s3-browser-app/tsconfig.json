@@ -1,5 +1,6 @@
 {
   "compilerOptions": {
+    "baseUrl": ".",
     "target": "es5",
     "lib": ["dom", "dom.iterable", "es6"],
     "allowJs": true,
@@ -13,6 +14,10 @@
     "isolatedModules": true,
     "jsx": "react-jsx",
     "incremental": true,
+    "paths": {
+      "vcp-s3-browser-ui": ["../vcp-s3-browser-ui/index.ts"],
+      "vcp-s3-browser-ui/*": ["../vcp-s3-browser-ui/*"]
+    },
     "plugins": [{"name": "next"}]
   },
   "include": [

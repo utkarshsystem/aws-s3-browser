@@ -19,6 +19,28 @@ export class S3BrowserUIService extends AbsS3BrowserService {
     return this.config;
   }
 
+  async getGridConfig(gridFolder: string): Promise<string> {
+    const normalizedFolder = gridFolder.replace(/^\/+|\/+$/g, '');
+    const key = `grid/${normalizedFolder}/lowdefy-grid.yaml`;
+    const response = await fetch('/api/s3', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({
+        action: 'getFileContent',
+        region: this.config.region,
+        bucket: this.config.bucketName,
+        key,
+      }),
+    });
+
+    const payload = await response.json();
+    if (!response.ok) {
+      throw new Error(payload.error ?? `Failed to load grid config: ${key}`);
+    }
+
+    return payload.content as string;
+  }
+
   getState(): S3BrowserState {
     return this.state;
   }
