@@ -9,6 +9,7 @@ type PdfExplorerDashboardProps = {
   role?: string;
   elearningUrl?: string;
   dashboardOnlyFlag?: boolean;
+  isAuthenticated?: boolean;
   dashboardCode: DashboardCode;
 };
 
@@ -19,6 +20,7 @@ export function PdfExplorerDashboard({
   role = 'admin',
   elearningUrl = defaultBaseUrl,
   dashboardOnlyFlag = true,
+  isAuthenticated = false,
   dashboardCode,
 }: PdfExplorerDashboardProps) {
   const src = buildDashboardUrl({
@@ -58,12 +60,18 @@ export function PdfExplorerDashboard({
       <div className="col-12" style={{ flex: '1 1 0', minWidth: 0 }}>
         <div className="card border shadow-sm">
           <div className="card-header bg-light fw-semibold">{dashboardCode}</div>
-          <div className="card-body p-0">
+          <div className="card-body p-0" style={{ cursor: isAuthenticated ? 'auto' : 'default' }}>
             <iframe
               title={`PDF Explorer - ${dashboardCode}`}
               src={src}
-              style={{ width: '100%', height: 'calc(100vh - 180px)', border: 0 }}
+              style={{
+                width: '100%',
+                height: 'calc(100vh - 180px)',
+                border: 0,
+                cursor: isAuthenticated ? 'auto' : 'default',
+              }}
               allow="clipboard-read; clipboard-write"
+              sandbox="allow-same-origin allow-scripts allow-forms"
             />
           </div>
         </div>
@@ -82,7 +90,13 @@ function buildDashboardUrl({
   elearningUrl,
   dashboardOnlyFlag,
   dashboardCode,
-}: Required<Omit<PdfExplorerDashboardProps, 'subscriberCode'>> & Pick<PdfExplorerDashboardProps, 'subscriberCode'>) {
+}: {
+  subscriberCode?: string;
+  role: string;
+  elearningUrl: string;
+  dashboardOnlyFlag: boolean;
+  dashboardCode: DashboardCode;
+}) {
   const baseUrl = elearningUrl.replace(/\/+$/, '');
   const dashboardPath = pdfExplorerLinks[dashboardCode];
   const url = new URL(`${baseUrl}/${dashboardPath}`);
