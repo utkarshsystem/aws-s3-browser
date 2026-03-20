@@ -1,0 +1,19 @@
+.leftmenu-tab {
+  position: relative;
+  word-wrap: unset;
+  /* transform: translateX(35px); */
+  border-top-left-radius: 35px;
+  border-bottom-left-radius: 35px;
+
+  white-space: nowrap;
+  transition: 0.5s all;
+  width: fit-content;
+  cursor: pointer;
+}
+
+.dashboard {
+  z-index: 1000;
+}
+.leftmenu-tab:hover {
+  z-index: 1090;
+}
