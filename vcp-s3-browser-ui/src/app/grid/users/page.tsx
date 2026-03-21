@@ -1,4 +1,4 @@
-import S3GridPage from '../../../src/pages/S3GridPage';
+import S3GridPage from '../../../pages/S3GridPage';
 
 export default async function GridUsersPage({
   searchParams,

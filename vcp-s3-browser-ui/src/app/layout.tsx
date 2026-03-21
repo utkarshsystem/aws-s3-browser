@@ -1,1 +1,1 @@
-export { default } from '../src/pages/S3BrowserLayout';
+export { default } from '../pages/S3BrowserLayout';

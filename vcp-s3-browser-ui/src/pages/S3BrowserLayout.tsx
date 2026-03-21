@@ -5,10 +5,8 @@ export default function S3BrowserLayout({ children }: { children: ReactNode }) {
   return (
     <html lang="en">
       <head>
-        <link
-          href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css"
-          rel="stylesheet"
-        />
+        <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet" />
+        <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.css" rel="stylesheet" />
       </head>
       <body>
         <nav className="navbar navbar-expand bg-dark navbar-dark px-3">
@@ -25,7 +23,9 @@ export default function S3BrowserLayout({ children }: { children: ReactNode }) {
             </li>
           </ul>
         </nav>
-        <main className="container-fluid py-4 px-4">{children}</main>
+        <main className="container-fluid py-2 px-2">{children}</main>
+                <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js" defer></script>
+
       </body>
     </html>
   );

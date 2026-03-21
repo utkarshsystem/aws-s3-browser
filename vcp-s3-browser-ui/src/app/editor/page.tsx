@@ -1,1 +1,1 @@
-export { default } from '../../src/pages/S3EditorPage';
+export { default } from '../../pages/S3EditorPage';

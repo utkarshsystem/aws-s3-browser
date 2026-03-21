@@ -1,1 +1,1 @@
-export { default } from '../src/pages/S3BrowserPage';
+export { default } from '../pages/S3BrowserPage';
